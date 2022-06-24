@@ -20,11 +20,8 @@ def open_all_logs():
             if split_tup[1] == ".CSV" or split_tup[1] == ".csv":
                 with open(os.path.join(directory_input, filename), 'r') as csv_file:
                     content = csv.reader(csv_file, delimiter=",")
-                    for line in content:
-                        if len(line[4]) > 0:
-                            if line[4] != "NAS_IP":
-                                if line[4] not in all_logs:
-                                    all_logs.append(line[4])
+                    all_logs = [line[4] for line in content if len(line[4]) > 0 \
+                        if line[4] != "NAS_IP" if line[4] not in all_logs]
     return all_logs
 
 
