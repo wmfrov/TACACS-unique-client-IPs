@@ -6,6 +6,7 @@ Output is to text file in the directory. No input necessary.
 
 import csv
 import os
+import re
 
 def open_all_logs():
     """
@@ -15,16 +16,12 @@ def open_all_logs():
     all_logs = []
     directory_input = os.getcwd()
     for filename in os.listdir(directory_input):
-        if filename[0:6] == "System":
-            split_tup = os.path.splitext(filename)
-            if split_tup[1] == ".CSV" or split_tup[1] == ".csv":
-                with open(os.path.join(directory_input, filename), 'r') as csv_file:
-                    content = csv.reader(csv_file, delimiter=",")
-                    all_logs = [line[4] for line in content if len(line[4]) > 0 \
-                        if line[4] != "NAS_IP" if line[4] not in all_logs]
+        if re.search("^System.*csv$", filename, re.I):
+            with open(os.path.join(directory_input, filename), 'r') as csv_file:
+                content = csv.reader(csv_file, delimiter=",")
+                all_logs = [line[4] for line in content if len(line[4]) > 0 \
+                    if line[4] != "NAS_IP" if line[4] not in all_logs]
     return all_logs
-
-
 
 def main():
     """
@@ -44,9 +41,12 @@ def main():
     unique_ip_string = unique_ip_string[:-1]
     output = str(unique_ip_count) + " Unique IP addresses found in logs " \
          "\n" + "Unique IP addresses:\n" + unique_ip_string
-    with open('unique_clients.txt', 'w') as output_file:
-        output_file.write(output)
-    print("Writing output file 'unique_clients.txt' to current directory")
+    try:
+        with open('unique_clients.txt', 'w') as output_file:
+            output_file.write(output)
+        print("Writing output file 'unique_clients.txt' to current directory", os.getcwd())
+    except PermissionError:
+        print("Permission error occurred. Unable to write output file to current directory", os.getcwd())
     return output
 
-main()
+print(main())
